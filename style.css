@@ -416,9 +416,11 @@ body {
 
 .hud-glass-card {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 320px;
+  height: 250px; /* 거대한 사각창으로 키움 */
   padding: 15px;
   cursor: pointer;
   
@@ -448,10 +450,8 @@ body {
 }
 
 .hud-glass-card .fighter-img-wrap {
-  width: 100px;
-  height: 100px;
-  margin-right: 20px;
-  flex-shrink: 0;
+  width: 180px; /* 비행기 이미지를 거대하게 키움 */
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -462,35 +462,18 @@ body {
 .hud-glass-card .fighter-img-wrap::after {
   content: '';
   position: absolute;
-  bottom: -10px;
-  width: 60px;
-  height: 10px;
+  bottom: -20px;
+  width: 100px;
+  height: 15px;
   background: radial-gradient(ellipse at center, rgba(0, 255, 255, 0.8) 0%, transparent 70%);
   border-radius: 50%;
-  filter: blur(2px);
+  filter: blur(4px);
 }
 
 .hud-glass-card .fighter-img-wrap img {
-  width: 90%;
-  height: 90%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.8));
+  filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.8));
   animation: floating 3s ease-in-out infinite reverse;
-}
-
-.hud-glass-card .card-info {
-  text-align: left;
-  flex-grow: 1;
-}
-
-.hud-glass-card h3 {
-  color: #fff;
-  font-size: 20px;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-  margin-bottom: 5px;
-}
-
-.hud-glass-card .price {
-  color: #0ff;
-  font-size: 14px;
 }
