@@ -253,30 +253,81 @@ body {
   background: rgba(0, 119, 255, 0.1);
 }
 
-.fighter-img-wrap {
+/* SF Hologram Card */
+.sci-fi-card {
+  background: rgba(10, 25, 50, 0.7);
+  border: 1px solid rgba(0, 150, 255, 0.6);
+  box-shadow: 0 0 25px rgba(0, 150, 255, 0.5), inset 0 0 25px rgba(0, 150, 255, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 10px;
+  overflow: hidden;
+  width: 260px; /* 기존 카드보다 크게 확장 */
+  margin: 0 auto;
 }
 
-.fighter-img-wrap img {
+.sci-fi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0, 150, 255, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 255, 0.3) 1px, transparent 1px);
+  background-size: 30px 30px;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.sci-fi-card.selected {
+  border-color: #00ffff;
+  box-shadow: 0 0 35px rgba(0, 255, 255, 0.8), inset 0 0 35px rgba(0, 255, 255, 0.4);
+}
+
+.sci-fi-card .fighter-img-wrap {
+  position: relative;
+  width: 160px; /* 기존 80px 대비 200% 확대 */
+  height: 160px;
+  margin-bottom: 25px;
+  z-index: 1;
+}
+
+.sci-fi-card .fighter-img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(0, 200, 255, 0.9)); /* 밝은 빛 효과 */
 }
 
-.fighter-img-wrap img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+.sci-fi-pedestal {
+  width: 200px;
+  height: 35px;
+  background: radial-gradient(ellipse at center, rgba(0, 150, 255, 0.9) 0%, rgba(0, 0, 0, 0) 70%);
+  border-radius: 50%;
+  margin-top: -40px;
+  margin-bottom: 25px;
+  z-index: 0;
 }
 
-.fighter-card h3 {
-  font-size: 14px;
-  margin-bottom: 5px;
-  color: #fff;
+.sci-fi-card .card-info {
+  z-index: 1;
   text-align: center;
+}
+
+.sci-fi-card h3 {
+  color: #00ffff;
+  font-size: 24px;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.9);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.sci-fi-card .price {
+  color: #bbf;
+  font-size: 15px;
 }
 
 .fighter-card .price {

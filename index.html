@@ -45,26 +45,18 @@
         <h1>SELECT FIGHTER</h1>
         
         <div class="fighter-selection">
-          <!-- 1번: 무료 비행기 -->
-          <div class="fighter-card selected" id="basicFighterCard" data-type="basic">
+          <!-- 1번: 무료 비행기 (SF 홀로그램 스타일) -->
+          <div class="fighter-card sci-fi-card selected" id="basicFighterCard" data-type="basic">
             <div class="fighter-img-wrap">
               <img src="public/basic.png" alt="기본 비행기">
             </div>
-            <h3>기본 전투기</h3>
-            <span class="price">무료</span>
-          </div>
-          
-          <!-- 2번: 유료 프리미엄 비행기 -->
-          <div class="fighter-card locked" id="premiumFighterCard" data-type="premium">
-            <div class="fighter-img-wrap">
-              <img src="public/premium_01.png" alt="프리미엄 비행기">
-              <div class="lock-overlay" id="premiumLockIcon">🔒</div>
+            <div class="sci-fi-pedestal"></div>
+            <div class="card-info">
+              <h3>BASIC FIGHTER</h3>
+              <span class="price">Level 1 Standard</span>
             </div>
-            <h3>황금 3D 전투기</h3>
-            <span class="price premium-price">10,000원</span>
           </div>
         </div>
-
         <button id="startGameBtn">START GAME</button>
       </div>
     </div>

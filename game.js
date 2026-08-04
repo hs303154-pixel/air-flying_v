@@ -599,20 +599,25 @@ const basicCard = document.getElementById('basicFighterCard');
 const premiumCard = document.getElementById('premiumFighterCard');
 const startGameBtn = document.getElementById('startGameBtn');
 
-basicCard.addEventListener('click', () => {
-  basicCard.classList.add('selected');
-  premiumCard.classList.remove('selected');
-  selectedFighterType = 'basic';
-});
+if (basicCard) {
+  basicCard.addEventListener('click', () => {
+    basicCard.classList.add('selected');
+    if (premiumCard) premiumCard.classList.remove('selected');
+    selectedFighterType = 'basic';
+  });
+}
 
-premiumCard.addEventListener('click', () => {
-  if (isAdmin) {
-    premiumCard.classList.add('selected');
-    basicCard.classList.remove('selected');
-    selectedFighterType = 'premium';
-  } else {
-    alert("프리미엄 3D 기체를 10,000원에 구매하시겠습니까? (현재 데모 버전입니다)");
-  }
+if (premiumCard) {
+  premiumCard.addEventListener('click', () => {
+    if (isAdmin) {
+      premiumCard.classList.add('selected');
+      if (basicCard) basicCard.classList.remove('selected');
+      selectedFighterType = 'premium';
+    } else {
+      alert("프리미엄 3D 기체를 10,000원에 구매하시겠습니까? (현재 데모 버전입니다)");
+    }
+  });
+}
 });
 
 // 격납고에서 출격하기 버튼 클릭
