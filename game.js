@@ -412,20 +412,13 @@ function render() {
   }
 
   // 2. 플레이어(비행기 이미지) 그리기
-  if (isAdmin) {
-    if (premiumImg.complete && premiumImg.naturalHeight !== 0) {
-      ctx.drawImage(premiumImg, player.x, player.y, player.width, player.height);
-    } else {
-      ctx.fillStyle = 'gold';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-    }
+  let currentFighterImg = selectedFighterType === 'premium' ? premiumImg : playerImg;
+  
+  if (currentFighterImg.complete && currentFighterImg.naturalHeight !== 0) {
+    ctx.drawImage(currentFighterImg, player.x, player.y, player.width, player.height);
   } else {
-    if (playerImg.complete && playerImg.naturalHeight !== 0) {
-      ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-    } else {
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-    }
+    ctx.fillStyle = selectedFighterType === 'premium' ? 'gold' : player.color;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
   }
 
   // 3. 미사일(노란색) 그리기
@@ -553,29 +546,69 @@ document.getElementById('customLoginBtn').addEventListener('click', () => {
     });
 });
 
-// 관리자 여부 확인 후 게임 시작
-function checkAdminAndStart(user) {
-  if (user && user.email) {
-    // 아이디가 boss 이거나 boos 인 경우 관리자로 취급
-    if (user.email === 'boss@air-flying.com' || user.email === 'boos@air-flying.com') {
-      isAdmin = true;
-      player.width = 80;  // 일반 기체(50)보다 크게
-      player.height = 80;
-      console.log("관리자 계정 로그인 감지! 3D 프리미엄 기체 탑승!");
-    } else {
-      isAdmin = false;
-      player.width = 50;
-      player.height = 50;
-    }
+// === 격납고 (비행기 선택) 로직 ===
+let selectedFighterType = 'basic'; // 기본 선택
+const basicCard = document.getElementById('basicFighterCard');
+const premiumCard = document.getElementById('premiumFighterCard');
+const startGameBtn = document.getElementById('startGameBtn');
+
+basicCard.addEventListener('click', () => {
+  basicCard.classList.add('selected');
+  premiumCard.classList.remove('selected');
+  selectedFighterType = 'basic';
+});
+
+premiumCard.addEventListener('click', () => {
+  if (isAdmin) {
+    premiumCard.classList.add('selected');
+    basicCard.classList.remove('selected');
+    selectedFighterType = 'premium';
+  } else {
+    alert("프리미엄 3D 기체를 10,000원에 구매하시겠습니까? (현재 데모 버전입니다)");
+  }
+});
+
+// 격납고에서 출격하기 버튼 클릭
+startGameBtn.addEventListener('click', () => {
+  document.getElementById('hangarScreen').classList.add('hidden');
+  
+  if (selectedFighterType === 'premium') {
+    player.width = 80;
+    player.height = 80;
+  } else {
+    player.width = 50;
+    player.height = 50;
   }
   
-  document.getElementById('loginScreen').classList.add('hidden');
+  // 위치를 다시 하단 중앙으로 보정
+  player.x = (canvas.width - player.width) / 2;
+  player.y = canvas.height - player.height - 20;
+
   if (!isGameStarted) {
     isGameStarted = true;
     bgm.play().catch(e => { console.log("BGM play failed", e); });
     isBgmPlaying = true;
     gameLoop();
   }
+});
+
+// 관리자 여부 확인 후 격납고 띄우기
+function checkAdminAndStart(user) {
+  if (user && user.email) {
+    if (user.email === 'boss@air-flying.com' || user.email === 'boos@air-flying.com') {
+      isAdmin = true;
+      console.log("관리자 계정 로그인 감지! 격납고 자물쇠 해제!");
+      // 자물쇠 UI 풀기
+      premiumCard.classList.remove('locked');
+      document.getElementById('premiumLockIcon').style.display = 'none';
+    } else {
+      isAdmin = false;
+    }
+  }
+  
+  // 게임 화면 대신 격납고 화면 표시
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('hangarScreen').classList.remove('hidden');
 }
 
 // 로그인 상태 자동 확인 (새로고침 시)

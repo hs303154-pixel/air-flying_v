@@ -150,6 +150,122 @@ body {
   border-radius: 10px;
 }
 
+/* 격납고 박스 */
+.hangar-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.fighter-selection {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  width: 100%;
+  justify-content: center;
+}
+
+.fighter-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 130px;
+  position: relative;
+}
+
+.fighter-card:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.fighter-card.selected {
+  border-color: #0077ff;
+  box-shadow: 0 0 15px rgba(0, 119, 255, 0.5);
+  background: rgba(0, 119, 255, 0.1);
+}
+
+.fighter-img-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fighter-img-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.fighter-card h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #fff;
+  text-align: center;
+}
+
+.fighter-card .price {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.fighter-card .premium-price {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.fighter-card.locked .fighter-img-wrap img {
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.lock-overlay {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+}
+
+.fighter-card.locked .lock-overlay {
+  display: block;
+}
+
+#startGameBtn {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  background: linear-gradient(135deg, #0077ff, #0044ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+#startGameBtn:active {
+  transform: scale(0.98);
+}
+
 #restartBtn, #googleLoginBtn {
   padding: 12px 24px;
   font-size: 18px;

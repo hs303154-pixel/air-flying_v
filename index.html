@@ -29,6 +29,37 @@
       </div>
     </div>
 
+    <!-- 격납고(비행기 선택) 오버레이 UI -->
+    <div id="hangarScreen" class="overlay-screen hidden">
+      <div class="hangar-box">
+        <h1>격납고 (SELECT FIGHTER)</h1>
+        <p>출격할 비행기를 선택하세요.</p>
+        
+        <div class="fighter-selection">
+          <!-- 1번: 무료 비행기 -->
+          <div class="fighter-card selected" id="basicFighterCard" data-type="basic">
+            <div class="fighter-img-wrap">
+              <img src="public/basic.png" alt="기본 비행기">
+            </div>
+            <h3>기본 전투기</h3>
+            <span class="price">무료</span>
+          </div>
+          
+          <!-- 2번: 유료 프리미엄 비행기 -->
+          <div class="fighter-card locked" id="premiumFighterCard" data-type="premium">
+            <div class="fighter-img-wrap">
+              <img src="public/premium_01.png" alt="프리미엄 비행기">
+              <div class="lock-overlay" id="premiumLockIcon">🔒</div>
+            </div>
+            <h3>황금 3D 전투기</h3>
+            <span class="price premium-price">10,000원</span>
+          </div>
+        </div>
+
+        <button id="startGameBtn">출격하기 (START GAME)</button>
+      </div>
+    </div>
+
     <!-- 게임 오버 오버레이 UI -->
     <div id="gameOverScreen" class="overlay-screen hidden">
       <h1>GAME OVER</h1>
