@@ -629,7 +629,6 @@ if (premiumCard) {
     }
   });
 }
-});
 
 // 격납고에서 출격하기 버튼 클릭
 startGameBtn.addEventListener('click', () => {
