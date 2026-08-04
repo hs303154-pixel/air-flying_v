@@ -24,6 +24,9 @@ const ctx = canvas.getContext('2d');
 const playerImg = new Image();
 playerImg.src = 'public/basic.png';
 
+const premiumImg = new Image();
+premiumImg.src = 'public/premium_01.png';
+
 const enemyImg = new Image();
 enemyImg.src = 'public/enemy.png';
 
@@ -409,12 +412,20 @@ function render() {
   }
 
   // 2. 플레이어(비행기 이미지) 그리기
-  if (playerImg.complete) {
-    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+  if (isAdmin) {
+    if (premiumImg.complete && premiumImg.naturalHeight !== 0) {
+      ctx.drawImage(premiumImg, player.x, player.y, player.width, player.height);
+    } else {
+      ctx.fillStyle = 'gold';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
   } else {
-    // 이미지 로딩 전이거나 실패 시 기존 파란색 네모 출력
-    ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    if (playerImg.complete && playerImg.naturalHeight !== 0) {
+      ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    } else {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
   }
 
   // 3. 미사일(노란색) 그리기
@@ -548,9 +559,13 @@ function checkAdminAndStart(user) {
     // 아이디가 boss 이거나 boos 인 경우 관리자로 취급
     if (user.email === 'boss@air-flying.com' || user.email === 'boos@air-flying.com') {
       isAdmin = true;
-      console.log("관리자 계정 로그인 감지!");
+      player.width = 80;  // 일반 기체(50)보다 크게
+      player.height = 80;
+      console.log("관리자 계정 로그인 감지! 3D 프리미엄 기체 탑승!");
     } else {
       isAdmin = false;
+      player.width = 50;
+      player.height = 50;
     }
   }
   
