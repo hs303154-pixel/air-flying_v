@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  /* PC 화면에서 양옆 공간을 채울 짙은 회색 배경 */
+  background-color: #2b2d35;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 반응형 컨테이너 (크기는 JS에서 제어) */
+.game-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+#gameCanvas {
+  display: block;
+  background-color: #000000;
+}
+
+#gameOverScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  z-index: 10;
+}
+
+#gameOverScreen.hidden {
+  display: none;
+}
+
+#gameOverScreen h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+#gameOverScreen p {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+#restartBtn {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+#restartBtn:hover {
+  background-color: #005ce6;
+}

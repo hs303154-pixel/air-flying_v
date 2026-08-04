@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>비행기 슈팅 게임 - 1단계</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <canvas id="gameCanvas" width="360" height="640"></canvas>
+    
+    <!-- 게임 오버 오버레이 UI -->
+    <div id="gameOverScreen" class="hidden">
+      <h1>GAME OVER</h1>
+      <p id="finalScore">최종 점수: 0점</p>
+      <button id="restartBtn">재시작 (Restart)</button>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
