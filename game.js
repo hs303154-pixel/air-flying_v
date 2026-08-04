@@ -644,8 +644,8 @@ document.getElementById('restartBtn').addEventListener('click', () => {
   score = 0;
   isGameOver = false;
   gameOverTriggered = false;
+  bgm.pause();
   bgm.currentTime = 0;
-  bgm.play().catch(e => {});
   slowEndTime = 0;
   targets.length = 0;
   missiles.length = 0;
@@ -656,6 +656,9 @@ document.getElementById('restartBtn').addEventListener('click', () => {
   player.x = (canvas.width - player.width) / 2;
   player.y = canvas.height - player.height - 20;
   
-  // UI 숨기기
+  isGameStarted = false; // 격납고에서 다시 시작할 수 있도록 리셋
+  
+  // 게임 오버 창 닫고 격납고 띄우기
   document.getElementById('gameOverScreen').classList.add('hidden');
+  document.getElementById('hangarScreen').classList.remove('hidden');
 });
