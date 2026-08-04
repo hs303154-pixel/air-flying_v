@@ -60,11 +60,94 @@ body {
 .overlay-screen h1 {
   font-size: 40px;
   margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .overlay-screen p {
-  font-size: 20px;
+  font-size: 16px;
+  margin-bottom: 25px;
+  color: #dddddd;
+}
+
+/* 글래스모피즘 로그인 박스 */
+.login-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 40px 30px;
+  width: 90%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.custom-login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 20px;
+}
+
+.custom-login-form input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.custom-login-form input::placeholder {
+  color: #888;
+}
+
+.custom-login-form input:focus {
+  border-color: #0077ff;
+}
+
+#customLoginBtn {
+  margin-top: 8px;
+  padding: 14px;
+  font-size: 16px;
+  background: linear-gradient(135deg, #0077ff, #0044ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+#customLoginBtn:active {
+  transform: scale(0.98);
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 15px 0 25px 0;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.divider span {
+  position: absolute;
+  top: -12px;
+  background-color: #1a1c23; /* 배경색에 맞춰 살짝 어둡게 (blur 효과 안 먹는 곳이므로) */
+  padding: 0 10px;
+  font-size: 14px;
+  color: #888;
+  border-radius: 10px;
 }
 
 #restartBtn, #googleLoginBtn {

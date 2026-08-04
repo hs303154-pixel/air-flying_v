@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
 const firebaseConfig = {
@@ -483,24 +483,74 @@ function gameLoop() {
 
 let isGameStarted = false;
 
-// 로그인 버튼 이벤트 리스너
+// 구글 로그인 버튼 이벤트 리스너
 document.getElementById('googleLoginBtn').addEventListener('click', () => {
   signInWithPopup(auth, provider)
     .then((result) => {
-      // 로그인 성공
       console.log("Logged in as:", result.user.displayName);
-      document.getElementById('loginScreen').classList.add('hidden');
-      if (!isGameStarted) {
-        isGameStarted = true;
-        bgm.play().catch(e => { console.log("BGM play failed", e); });
-        isBgmPlaying = true;
-        gameLoop();
-      }
+      startGameAfterLogin();
     }).catch((error) => {
       console.error("Login failed:", error);
       alert("로그인에 실패했습니다.");
     });
 });
+
+// 커스텀 아이디(꼼수) 로그인 버튼 이벤트 리스너
+document.getElementById('customLoginBtn').addEventListener('click', () => {
+  const idInput = document.getElementById('customId').value.trim();
+  const pwInput = document.getElementById('customPw').value.trim();
+  
+  if (idInput.length < 3) {
+    alert("아이디는 3글자 이상 입력해주세요!");
+    return;
+  }
+  if (pwInput.length < 6) {
+    alert("비밀번호는 6자리 이상 입력해주세요!");
+    return;
+  }
+  
+  // 몰래 이메일 형식으로 변환
+  const fakeEmail = idInput + '@air-flying.com';
+  
+  // 먼저 로그인을 시도해봅니다 (기존 유저인지 확인)
+  signInWithEmailAndPassword(auth, fakeEmail, pwInput)
+    .then((userCredential) => {
+      console.log("Custom login success:", idInput);
+      startGameAfterLogin();
+    })
+    .catch((error) => {
+      // 만약 유저가 없거나 비밀번호가 틀렸다는 에러가 나오면
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        // 회원가입을 시도해봅니다! (유저가 없는 경우 회원가입 성공)
+        createUserWithEmailAndPassword(auth, fakeEmail, pwInput)
+          .then((userCredential) => {
+            console.log("Custom signup success:", idInput);
+            startGameAfterLogin();
+          })
+          .catch((signupError) => {
+            if (signupError.code === 'auth/email-already-in-use') {
+              // 이미 가입된 아이디인데 위에서 로그인이 실패했다면, 비밀번호가 틀린 것!
+              alert("비밀번호가 틀렸습니다!");
+            } else {
+              alert("가입 오류: " + signupError.message);
+            }
+          });
+      } else {
+        alert("로그인 오류: " + error.message);
+      }
+    });
+});
+
+// 로그인 성공 시 공통 처리 함수
+function startGameAfterLogin() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  if (!isGameStarted) {
+    isGameStarted = true;
+    bgm.play().catch(e => { console.log("BGM play failed", e); });
+    isBgmPlaying = true;
+    gameLoop();
+  }
+}
 
 // 로그인 상태 자동 확인 (새로고침 시)
 onAuthStateChanged(auth, (user) => {
@@ -508,7 +558,6 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('loginScreen').classList.add('hidden');
     if (!isGameStarted) {
       isGameStarted = true;
-      // 자동 로그인의 경우 브라우저 정책상 BGM 자동 재생이 막힐 수 있음
       gameLoop();
     }
   }

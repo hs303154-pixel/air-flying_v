@@ -11,9 +11,22 @@
     <canvas id="gameCanvas" width="360" height="640"></canvas>
     <!-- 로그인 오버레이 UI -->
     <div id="loginScreen" class="overlay-screen">
-      <h1>AIR FLYING</h1>
-      <p>우주 전쟁에 참여하세요!</p>
-      <button id="googleLoginBtn">Google 계정으로 로그인</button>
+      <div class="login-box">
+        <h1>AIR FLYING</h1>
+        <p>우주 전쟁에 참여하세요!</p>
+        
+        <div class="custom-login-form">
+          <input type="text" id="customId" placeholder="아이디 (예: air123)" autocomplete="off">
+          <input type="password" id="customPw" placeholder="비밀번호 (6자리 이상)" autocomplete="off">
+          <button id="customLoginBtn">시작하기 (가입/로그인)</button>
+        </div>
+
+        <div class="divider">
+          <span>또는</span>
+        </div>
+
+        <button id="googleLoginBtn">Google 계정으로 로그인</button>
+      </div>
     </div>
 
     <!-- 게임 오버 오버레이 UI -->
