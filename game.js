@@ -662,8 +662,8 @@ function checkAdminAndStart(user) {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById('loginScreen').classList.add('hidden');
-    if (!isGameStarted) {
-      isGameStarted = true;
+    // 아직 게임 화면으로 안 넘어간 상태라면 격납고 띄우기
+    if (!isGameStarted && document.getElementById('hangarScreen').classList.contains('hidden')) {
       checkAdminAndStart(user);
     }
   }
