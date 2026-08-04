@@ -38,13 +38,13 @@ body {
   background-color: #000000;
 }
 
-#gameOverScreen {
+.overlay-screen {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -53,33 +53,34 @@ body {
   z-index: 10;
 }
 
-#gameOverScreen.hidden {
+.overlay-screen.hidden {
   display: none;
 }
 
-#gameOverScreen h1 {
+.overlay-screen h1 {
   font-size: 40px;
   margin-bottom: 10px;
 }
 
-#gameOverScreen p {
+.overlay-screen p {
   font-size: 20px;
   margin-bottom: 20px;
 }
 
-#restartBtn {
-  padding: 10px 20px;
+#restartBtn, #googleLoginBtn {
+  padding: 12px 24px;
   font-size: 18px;
   background-color: #0077ff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
   font-family: inherit;
   font-weight: bold;
 }
 
-#restartBtn:hover {
+#restartBtn:hover, #googleLoginBtn:hover {
   background-color: #005ce6;
 }
+

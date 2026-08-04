@@ -1,3 +1,22 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAD5tyTBUKibpiiGdaAYMUP0m6g257qYfw",
+  authDomain: "air-flying-eeacf.firebaseapp.com",
+  projectId: "air-flying-eeacf",
+  storageBucket: "air-flying-eeacf.firebasestorage.app",
+  messagingSenderId: "473270505100",
+  appId: "1:473270505100:web:4ee8c8a647d5824df075a9",
+  measurementId: "G-C8NH7XSDB3"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -462,8 +481,38 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// 게임 루프 시작
-gameLoop();
+let isGameStarted = false;
+
+// 로그인 버튼 이벤트 리스너
+document.getElementById('googleLoginBtn').addEventListener('click', () => {
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      // 로그인 성공
+      console.log("Logged in as:", result.user.displayName);
+      document.getElementById('loginScreen').classList.add('hidden');
+      if (!isGameStarted) {
+        isGameStarted = true;
+        bgm.play().catch(e => { console.log("BGM play failed", e); });
+        isBgmPlaying = true;
+        gameLoop();
+      }
+    }).catch((error) => {
+      console.error("Login failed:", error);
+      alert("로그인에 실패했습니다.");
+    });
+});
+
+// 로그인 상태 자동 확인 (새로고침 시)
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    if (!isGameStarted) {
+      isGameStarted = true;
+      // 자동 로그인의 경우 브라우저 정책상 BGM 자동 재생이 막힐 수 있음
+      gameLoop();
+    }
+  }
+});
 
 // 재시작 이벤트 처리
 document.getElementById('restartBtn').addEventListener('click', () => {

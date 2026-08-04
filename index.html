@@ -9,14 +9,20 @@
 <body>
   <div class="game-container">
     <canvas id="gameCanvas" width="360" height="640"></canvas>
-    
+    <!-- 로그인 오버레이 UI -->
+    <div id="loginScreen" class="overlay-screen">
+      <h1>AIR FLYING</h1>
+      <p>우주 전쟁에 참여하세요!</p>
+      <button id="googleLoginBtn">Google 계정으로 로그인</button>
+    </div>
+
     <!-- 게임 오버 오버레이 UI -->
-    <div id="gameOverScreen" class="hidden">
+    <div id="gameOverScreen" class="overlay-screen hidden">
       <h1>GAME OVER</h1>
       <p id="finalScore">최종 점수: 0점</p>
       <button id="restartBtn">재시작 (Restart)</button>
     </div>
   </div>
-  <script src="game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>
