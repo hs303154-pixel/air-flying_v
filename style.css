@@ -113,6 +113,29 @@ body {
   border-color: #0077ff;
 }
 
+.save-id-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ccc;
+  font-size: 14px;
+  align-self: flex-start;
+  padding-left: 5px;
+  cursor: pointer;
+}
+
+.save-id-wrap input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #0077ff;
+  cursor: pointer;
+}
+
+.save-id-wrap label {
+  cursor: pointer;
+}
+
 #customLoginBtn {
   margin-top: 8px;
   padding: 14px;

@@ -485,6 +485,15 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+// 페이지 로드 시 저장된 아이디 불러오기
+window.addEventListener('DOMContentLoaded', () => {
+  const savedId = localStorage.getItem('savedAirFlyingId');
+  if (savedId) {
+    document.getElementById('customId').value = savedId;
+    document.getElementById('saveIdCheck').checked = true;
+  }
+});
+
 let isGameStarted = false;
 let isAdmin = false; // 관리자 여부 체크
 
@@ -504,6 +513,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', () => {
 document.getElementById('customLoginBtn').addEventListener('click', () => {
   const idInput = document.getElementById('customId').value.trim();
   const pwInput = document.getElementById('customPw').value.trim();
+  const saveIdCheck = document.getElementById('saveIdCheck').checked;
   
   if (idInput.length < 3) {
     alert("아이디는 3글자 이상 입력해주세요!");
@@ -512,6 +522,13 @@ document.getElementById('customLoginBtn').addEventListener('click', () => {
   if (pwInput.length < 6) {
     alert("비밀번호는 6자리 이상 입력해주세요!");
     return;
+  }
+  
+  // 아이디 저장 로직
+  if (saveIdCheck) {
+    localStorage.setItem('savedAirFlyingId', idInput);
+  } else {
+    localStorage.removeItem('savedAirFlyingId');
   }
   
   // 몰래 이메일 형식으로 변환
