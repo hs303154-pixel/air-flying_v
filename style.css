@@ -212,8 +212,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 30px;
-  width: 95%;
-  max-width: 650px;
+  width: 90%;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -416,92 +416,81 @@ body {
 
 .hud-glass-card {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 380px; 
+  width: 320px;
+  height: 280px; 
+  padding: 20px;
   cursor: pointer;
   
-  /* 와이드 스크린 홀로그램 패널 */
-  background: rgba(10, 25, 35, 0.85);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(0, 220, 255, 0.3);
-  border-radius: 20px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 200, 255, 0.1);
+  /* 미드저니 스타일 다크하고 고급스러운 글래스모피즘 */
+  background: rgba(20, 35, 45, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 220, 255, 0.25);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 200, 255, 0.05);
   
   /* 무중력 둥둥 떠있는 애니메이션 */
-  animation: floating 5s ease-in-out infinite;
+  animation: floating 4s ease-in-out infinite;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
 }
 
 .hud-glass-card:hover {
-  background: rgba(15, 30, 45, 0.9);
-  border-color: rgba(0, 255, 255, 0.6);
-  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.9), inset 0 0 50px rgba(0, 255, 255, 0.2);
+  background: rgba(25, 45, 60, 0.9);
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 255, 255, 0.15);
 }
 
 .hud-glass-card.selected {
-  background: rgba(20, 40, 55, 0.95);
+  background: rgba(30, 55, 75, 0.95);
   border-color: #00ffff;
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), inset 0 0 60px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.5), inset 0 0 40px rgba(0, 255, 255, 0.2);
 }
 
-/* 3D 뷰포트 설정을 위한 내부 래퍼 */
 .hud-glass-card .fighter-img-wrap {
-  width: 100%;
-  height: 100%;
+  width: 160px; 
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  perspective: 800px; /* 3D 원근감 부여 */
 }
 
-/* 3D 입체 홀로그램 궤도 (바닥) */
+/* 기체 뒤의 은은한 아우라(후광) 효과 */
 .hud-glass-card .fighter-img-wrap::before {
-  content: '';
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  width: 400px;
-  height: 400px;
-  transform: translate(-50%, -50%) rotateX(75deg); /* 3D로 눕히기 */
-  border: 2px solid rgba(0, 255, 255, 0.6);
-  border-radius: 50%;
-  box-shadow: 
-    0 0 20px rgba(0, 255, 255, 0.8),
-    inset 0 0 30px rgba(0, 255, 255, 0.5),
-    0 0 0 20px rgba(0, 255, 255, 0.1), /* 이중 테두리 효과 */
-    0 0 0 22px rgba(0, 255, 255, 0.4);
-  background: 
-    repeating-radial-gradient(circle at center, transparent, transparent 15px, rgba(0, 255, 255, 0.2) 16px, transparent 17px), /* 격자 무늬 */
-    radial-gradient(circle, rgba(0, 255, 255, 0.15) 0%, transparent 70%);
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* 기체 하단의 강렬한 푸른빛 역광 (아우라) */
-.hud-glass-card .fighter-img-wrap::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, rgba(0, 220, 255, 0.25) 0%, transparent 60%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(0, 220, 255, 0.15) 0%, transparent 60%);
   z-index: 0;
   pointer-events: none;
 }
 
+/* 기체 하단의 선명한 공중 투사(플로팅) 바닥 빛 반사 */
+.hud-glass-card .fighter-img-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  width: 80px;
+  height: 12px;
+  background: radial-gradient(ellipse at center, rgba(0, 255, 255, 0.9) 0%, transparent 75%);
+  border-radius: 50%;
+  filter: blur(2px);
+  z-index: 0;
+}
+
 .hud-glass-card .fighter-img-wrap img {
-  width: 200px; /* 기체를 크고 선명하게 */
-  height: 200px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.8)); /* 공중에 떠 있는 깊이감 */
-  animation: floating 4s ease-in-out infinite reverse; /* 궤도 위에서 천천히 떠다님 */
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.6)); /* 기체 자체는 입체감을 위해 검은 그림자 */
+  animation: floating 3s ease-in-out infinite reverse;
   z-index: 1;
 }
