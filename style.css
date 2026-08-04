@@ -198,6 +198,12 @@ body {
   border-radius: 10px;
 }
 
+/* 격납고 박스 위치 고정 (아래로만 커지게) */
+#hangarScreen {
+  justify-content: flex-start;
+  padding-top: 80px;
+}
+
 /* 격납고 박스 */
 .hangar-box {
   background: rgba(255, 255, 255, 0.1);
@@ -206,6 +212,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 30px;
+  padding-bottom: 150px; /* 아래쪽으로 크기 130% 이상 확실하게 확장 */
   width: 90%;
   max-width: 400px;
   display: flex;
@@ -216,24 +223,24 @@ body {
 
 .fighter-selection {
   display: flex;
+  flex-direction: column; /* 세로로 쌓기 */
   gap: 15px;
   margin-bottom: 25px;
   width: 100%;
-  justify-content: center;
+  align-items: center; /* 가운데 정렬 */
 }
 
 .fighter-card {
   background: rgba(0, 0, 0, 0.5);
   border: 2px solid transparent;
   border-radius: 12px;
-  padding: 15px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 130px;
+  width: 100%; /* 부모 너비 꽉 채우기 */
+  max-width: 320px;
   position: relative;
+  box-sizing: border-box;
 }
 
 .fighter-card:hover {
@@ -246,17 +253,56 @@ body {
   background: rgba(0, 119, 255, 0.1);
 }
 
-.fighter-img-wrap {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 10px;
+/* 무료 비행기 가로 배치 */
+.basic-row-card {
+  flex-direction: row; /* 가로 배치 */
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 25px;
 }
 
-.fighter-img-wrap img {
+.basic-row-card .fighter-img-wrap {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.basic-row-card .fighter-img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.basic-row-card .card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* 유료 프리미엄 비행기 크고 넓게 */
+.premium-large-card {
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+.premium-large-card .fighter-img-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+}
+
+.premium-large-card .fighter-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.premium-large-card .card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .fighter-img-wrap img {
