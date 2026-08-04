@@ -12,10 +12,15 @@ const firebaseConfig = {
   measurementId: "G-C8NH7XSDB3"
 };
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+let app, analytics, auth, provider;
+try {
+  app = initializeApp(firebaseConfig);
+  analytics = getAnalytics(app);
+  auth = getAuth(app);
+  provider = new GoogleAuthProvider();
+} catch (error) {
+  console.error("Firebase 초기화 실패 (로컬 우회 모드 작동):", error);
+}
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
