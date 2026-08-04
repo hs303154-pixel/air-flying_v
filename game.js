@@ -529,7 +529,8 @@ let isAdmin = false; // 관리자 여부 체크
 
 // 구글 로그인 버튼 이벤트 리스너
 document.getElementById('googleLoginBtn').addEventListener('click', () => {
-  if (window.location.protocol === 'file:') {
+  const isLocal = window.location.protocol === 'file:' || window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+  if (isLocal) {
     console.log("로컬 테스트 감지: 구글 로그인을 우회합니다.");
     checkAdminAndStart({ email: 'local@test.com' });
     return;
