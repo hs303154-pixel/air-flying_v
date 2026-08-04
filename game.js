@@ -529,6 +529,11 @@ let isAdmin = false; // 관리자 여부 체크
 
 // 구글 로그인 버튼 이벤트 리스너
 document.getElementById('googleLoginBtn').addEventListener('click', () => {
+  if (window.location.protocol === 'file:') {
+    console.log("로컬 테스트 감지: 구글 로그인을 우회합니다.");
+    checkAdminAndStart({ email: 'local@test.com' });
+    return;
+  }
   signInWithPopup(auth, provider)
     .then((result) => {
       console.log("Logged in as:", result.user.displayName);
@@ -651,8 +656,10 @@ function checkAdminAndStart(user) {
       isAdmin = true;
       console.log("관리자 계정 로그인 감지! 격납고 자물쇠 해제!");
       // 자물쇠 UI 풀기
-      premiumCard.classList.remove('locked');
-      document.getElementById('premiumLockIcon').style.display = 'none';
+      if (typeof premiumCard !== 'undefined' && premiumCard) {
+        premiumCard.classList.remove('locked');
+        document.getElementById('premiumLockIcon').style.display = 'none';
+      }
     } else {
       isAdmin = false;
     }
