@@ -49,6 +49,28 @@ const enemyShotSound = new Audio('public/sound/ememy.wav');
 const explosionSound = new Audio('public/sound/explision.wav');
 const gameOverSound = new Audio('public/sound/game over.wav');
 
+const allSounds = [bgm, shotSound, enemyShotSound, explosionSound, gameOverSound];
+
+// 몰폰용 음소거 로직
+let isMuted = false;
+const muteBtn = document.getElementById('muteBtn');
+
+function applyMuteState() {
+  if (isMuted) {
+    muteBtn.innerText = '🔇';
+    allSounds.forEach(snd => snd.volume = 0);
+  } else {
+    muteBtn.innerText = '🔊';
+    allSounds.forEach(snd => snd.volume = 1);
+  }
+}
+
+muteBtn.addEventListener('click', () => {
+  isMuted = !isMuted;
+  localStorage.setItem('airFlyingMuted', isMuted);
+  applyMuteState();
+});
+
 let isBgmPlaying = false;
 let gameOverTriggered = false;
 
@@ -485,12 +507,20 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// 페이지 로드 시 저장된 아이디 불러오기
+// 페이지 로드 시 로컬 스토리지 상태 불러오기
 window.addEventListener('DOMContentLoaded', () => {
+  // 1. 아이디 저장 로드
   const savedId = localStorage.getItem('savedAirFlyingId');
   if (savedId) {
     document.getElementById('customId').value = savedId;
     document.getElementById('saveIdCheck').checked = true;
+  }
+  
+  // 2. 음소거 설정 로드
+  const savedMute = localStorage.getItem('airFlyingMuted');
+  if (savedMute === 'true') {
+    isMuted = true;
+    applyMuteState();
   }
 });
 
