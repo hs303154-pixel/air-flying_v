@@ -482,13 +482,14 @@ function gameLoop() {
 }
 
 let isGameStarted = false;
+let isAdmin = false; // 관리자 여부 체크
 
 // 구글 로그인 버튼 이벤트 리스너
 document.getElementById('googleLoginBtn').addEventListener('click', () => {
   signInWithPopup(auth, provider)
     .then((result) => {
       console.log("Logged in as:", result.user.displayName);
-      startGameAfterLogin();
+      checkAdminAndStart(result.user);
     }).catch((error) => {
       console.error("Login failed:", error);
       alert("로그인에 실패했습니다.");
@@ -516,7 +517,7 @@ document.getElementById('customLoginBtn').addEventListener('click', () => {
   signInWithEmailAndPassword(auth, fakeEmail, pwInput)
     .then((userCredential) => {
       console.log("Custom login success:", idInput);
-      startGameAfterLogin();
+      checkAdminAndStart(userCredential.user);
     })
     .catch((error) => {
       // 만약 유저가 없거나 비밀번호가 틀렸다는 에러가 나오면
@@ -525,7 +526,7 @@ document.getElementById('customLoginBtn').addEventListener('click', () => {
         createUserWithEmailAndPassword(auth, fakeEmail, pwInput)
           .then((userCredential) => {
             console.log("Custom signup success:", idInput);
-            startGameAfterLogin();
+            checkAdminAndStart(userCredential.user);
           })
           .catch((signupError) => {
             if (signupError.code === 'auth/email-already-in-use') {
@@ -541,8 +542,18 @@ document.getElementById('customLoginBtn').addEventListener('click', () => {
     });
 });
 
-// 로그인 성공 시 공통 처리 함수
-function startGameAfterLogin() {
+// 관리자 여부 확인 후 게임 시작
+function checkAdminAndStart(user) {
+  if (user && user.email) {
+    // 아이디가 boss 이거나 boos 인 경우 관리자로 취급
+    if (user.email === 'boss@air-flying.com' || user.email === 'boos@air-flying.com') {
+      isAdmin = true;
+      console.log("관리자 계정 로그인 감지!");
+    } else {
+      isAdmin = false;
+    }
+  }
+  
   document.getElementById('loginScreen').classList.add('hidden');
   if (!isGameStarted) {
     isGameStarted = true;
@@ -558,7 +569,7 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('loginScreen').classList.add('hidden');
     if (!isGameStarted) {
       isGameStarted = true;
-      gameLoop();
+      checkAdminAndStart(user);
     }
   }
 });
