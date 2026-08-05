@@ -223,11 +223,41 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-// 터치 이벤트 리스너 등록 (스마트폰 대응)
+// 터치 이벤트 리스너 등록 (스마트폰 대응: 터치 이동 로직 완벽 연동)
 let isTouching = false;
+let touchStartX = 0;
+let touchStartY = 0;
+
 window.addEventListener('touchstart', (e) => {
-  isTouching = true;
-});
+  if (isGameStarted && !isGameOver) {
+    isTouching = true;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }
+}, { passive: false });
+
+window.addEventListener('touchmove', (e) => {
+  if (isGameStarted && !isGameOver) {
+    e.preventDefault(); // 드래그 시 화면 전체가 스크롤되는 현상 완벽 방지
+    
+    let currentX = e.touches[0].clientX;
+    let currentY = e.touches[0].clientY;
+    
+    // 이전 좌표 대비 이동한 '차이(Delta)'만큼 기체를 이동시킴 (상대 이동 방식)
+    // 조작감을 위해 터치 이동 속도에 1.2배 가속도를 부여합니다.
+    player.x += (currentX - touchStartX) * 1.2;
+    player.y += (currentY - touchStartY) * 1.2;
+    
+    // 화면 밖으로 나가지 않도록 벽 판정 보정
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+    
+    // 현재 좌표를 다음 프레임의 기준점으로 갱신
+    touchStartX = currentX;
+    touchStartY = currentY;
+  }
+}, { passive: false });
+
 window.addEventListener('touchend', (e) => {
   isTouching = false;
 });
