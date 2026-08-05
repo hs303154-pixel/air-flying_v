@@ -137,24 +137,26 @@ const player = {
 
 let isInitialized = false;
 
+let canvasScale = 1;
+
 function resizeCanvas() {
   const winW = window.innerWidth;
   const winH = window.innerHeight;
   
-  if (winH > winW) {
-    // 1. 모바일 환경 (세로가 가로보다 길 때): 100% 꽉 차게
-    canvas.width = winW;
-    canvas.height = winH;
-  } else {
-    // 2. PC 환경 (가로가 세로보다 길거나 같을 때): 높이 100%, 가로는 3:4 비율
-    const newW = winH * (3 / 4);
-    canvas.width = newW;
-    canvas.height = winH;
-  }
+  // 게임 내부의 절대적인 논리 해상도 (무조건 고정! 이 안에서 90x90 기체가 쾌적하게 놈)
+  canvas.width = 800;
+  canvas.height = 1200;
   
-  // CSS 크기도 논리적 크기와 동일하게 설정
-  canvas.style.width = canvas.width + 'px';
-  canvas.style.height = canvas.height + 'px';
+  // 화면 비율 계산 (잘리지 않게 꽉 차도록 object-fit: contain 방식 계산)
+  const scaleX = winW / canvas.width;
+  const scaleY = winH / canvas.height;
+  canvasScale = Math.min(scaleX, scaleY);
+  
+  // CSS 크기를 브라우저 화면에 맞춰 비율 조정
+  canvas.style.width = (canvas.width * canvasScale) + 'px';
+  canvas.style.height = (canvas.height * canvasScale) + 'px';
+  canvas.style.display = 'block';
+  canvas.style.margin = '0 auto';
 
   if (!isInitialized) {
     // 처음 실행 시 하단 중앙 배치
@@ -162,7 +164,7 @@ function resizeCanvas() {
     player.y = canvas.height - player.height - 20;
     isInitialized = true;
   } else {
-    // 3. 비행기는 화면 밖으로 나가지 못하게 유지 (리사이즈 보정)
+    // 비행기는 화면 밖으로 나가지 못하게 유지
     if (player.x + player.width > canvas.width) {
       player.x = Math.max(0, canvas.width - player.width);
     }
@@ -244,9 +246,13 @@ window.addEventListener('touchmove', (e) => {
     let currentY = e.touches[0].clientY;
     
     // 이전 좌표 대비 이동한 '차이(Delta)'만큼 기체를 이동시킴 (상대 이동 방식)
+    // CSS 스케일(canvasScale)로 나누어 실제 게임 내부 논리 해상도 좌표계로 변환!
+    let deltaX = (currentX - touchStartX) / canvasScale;
+    let deltaY = (currentY - touchStartY) / canvasScale;
+    
     // 조작감을 위해 터치 이동 속도에 1.2배 가속도를 부여합니다.
-    player.x += (currentX - touchStartX) * 1.2;
-    player.y += (currentY - touchStartY) * 1.2;
+    player.x += deltaX * 1.2;
+    player.y += deltaY * 1.2;
     
     // 화면 밖으로 나가지 않도록 벽 판정 보정
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
