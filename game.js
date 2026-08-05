@@ -873,14 +873,22 @@ function updateFighterDisplay() {
     }
   }
   
-  // 하단 결제 버튼 금액 업데이트
+  // 하단 결제 버튼 금액 업데이트 및 관리자 권한 확인
   const startBtnText = document.querySelector('#startGameBtn .nav-text');
-  if (startBtnText) {
-    if (currentFighterIndex === 0) {
-      startBtnText.textContent = '$6.99 결제 하기';
-    } else if (currentFighterIndex === 1) {
-      startBtnText.textContent = '$10.99 결제 하기';
+  const lockIcon = document.getElementById('premiumLockIcon');
+  
+  if (isAdmin) {
+    if (startBtnText) startBtnText.textContent = 'START';
+    if (lockIcon) lockIcon.style.display = 'none';
+  } else {
+    if (startBtnText) {
+      if (currentFighterIndex === 0) {
+        startBtnText.textContent = '$6.99 결제 하기';
+      } else if (currentFighterIndex === 1) {
+        startBtnText.textContent = '$10.99 결제 하기';
+      }
     }
+    if (lockIcon) lockIcon.style.display = 'block';
   }
 }
 
@@ -962,15 +970,13 @@ function checkAdminAndStart(user) {
     if (user.email === 'boss@air-flying.com' || user.email === 'boos@air-flying.com') {
       isAdmin = true;
       console.log("관리자 계정 로그인 감지! 격납고 자물쇠 해제!");
-      // 자물쇠 UI 풀기
-      if (typeof premiumCard !== 'undefined' && premiumCard) {
-        premiumCard.classList.remove('locked');
-        document.getElementById('premiumLockIcon').style.display = 'none';
-      }
     } else {
       isAdmin = false;
     }
   }
+  
+  // 로그인 후 즉시 UI 업데이트 (자물쇠 숨김 등)
+  updateFighterDisplay();
   
   // 게임 화면 대신 격납고 화면 표시
   document.getElementById('loginScreen').classList.add('hidden');
@@ -1040,13 +1046,17 @@ function openStartModal(fighterName, isPremium) {
       selectedFighterType = 'basic';
     }
     
-    // 테스트용: 잠긴 기체는 UNLOCK, 무료/해제된 기체는 START
-    if (isPremium && currentFighterIndex === 1) { 
-      modalStartBtn.textContent = '$10.99 UNLOCK';
-    } else if (isPremium && currentFighterIndex === 0) {
-      modalStartBtn.textContent = '$6.99 UNLOCK';
-    } else {
+    // 잠긴 기체 텍스트 설정 (관리자는 무조건 START)
+    if (isAdmin) {
       modalStartBtn.textContent = 'START';
+    } else {
+      if (isPremium && currentFighterIndex === 1) { 
+        modalStartBtn.textContent = '$10.99 UNLOCK';
+      } else if (isPremium && currentFighterIndex === 0) {
+        modalStartBtn.textContent = '$6.99 UNLOCK';
+      } else {
+        modalStartBtn.textContent = 'START';
+      }
     }
   }
 }
