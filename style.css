@@ -610,7 +610,13 @@ body {
   text-align: center;
   font-family: 'Inter', sans-serif;
   color: #fff;
-  min-width: 300px;
+  
+  /* 반응형 크기 조절: 폰에서는 90% 꽉 차게, PC에서는 최대 400px 제한 */
+  width: 90%;
+  max-width: 400px;
+  max-height: 85vh; /* 화면 세로 길이를 넘지 않도록 제한 */
+  overflow-y: auto; /* 내용이 길면 스크롤 생성 (버튼 잘림 방지) */
+  
   clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
   position: relative;
   z-index: 100;
