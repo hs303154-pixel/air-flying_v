@@ -673,19 +673,28 @@ function render() {
   }
   ctx.restore();
 
-  // 3. 미사일(노란색) 그리기
-  ctx.fillStyle = '#ffff00'; // 노란색
+  // 3. 내 미사일(네온 시안) 그리기
+  ctx.save();
+  ctx.fillStyle = '#00ffff'; // 형광 하늘색
+  ctx.shadowBlur = 15; // 빛 번짐 효과
+  ctx.shadowColor = '#00ffff';
   for (let i = 0; i < missiles.length; i++) {
     let m = missiles[i];
-    ctx.fillRect(m.x, m.y, m.width, m.height);
+    // 원래 미사일보다 약간 두껍게 그려서 잘 보이게 함
+    ctx.fillRect(m.x - 2, m.y, m.width + 4, m.height);
   }
+  ctx.restore();
 
-  // 적 미사일(주황색) 그리기
-  ctx.fillStyle = '#ffa500'; // 주황색
+  // 적 미사일(네온 레드) 그리기
+  ctx.save();
+  ctx.fillStyle = '#ff1133'; // 형광 빨간색
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = '#ff0000';
   for (let i = 0; i < enemyMissiles.length; i++) {
     let em = enemyMissiles[i];
-    ctx.fillRect(em.x, em.y, em.width, em.height);
+    ctx.fillRect(em.x - 2, em.y - 2, em.width + 4, em.height + 4);
   }
+  ctx.restore();
 
   // 폭탄 사용 시 전체 화면 번쩍임 효과
   if (bombFlashTimer > 0) {
