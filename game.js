@@ -1099,3 +1099,12 @@ if (modalStartBtn) {
     launchGame();
   });
 }
+
+// --- OBT (오픈 베타 테스트) 임시 프리패스 ---
+// 로그인 화면을 건너뛰고 모든 기체를 해제(isAdmin = true) 상태로 시작합니다.
+isAdmin = true;
+document.getElementById('loginScreen').classList.add('hidden');
+document.getElementById('hangarScreen').classList.remove('hidden');
+updateFighterDisplay();
+// ---------------------------------------------
+
