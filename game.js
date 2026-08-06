@@ -24,6 +24,9 @@ try {
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const muteBtn = document.getElementById('muteBtn');
+const mobileBombBtn = document.getElementById('mobileBombBtn');
+const bombCountDisplay = document.getElementById('bombCountDisplay');
 
 // 비행기 이미지 로드
 const playerImg = new Image();
@@ -58,7 +61,6 @@ const allSounds = [bgm, shotSound, enemyShotSound, explosionSound, gameOverSound
 
 // 몰폰용 음소거 로직
 let isMuted = false;
-const muteBtn = document.getElementById('muteBtn');
 
 function applyMuteState() {
   if (isMuted) {
@@ -208,17 +210,7 @@ window.addEventListener('keyup', (e) => {
   
   // R 키: 폭탄 사용 (VIP 기체 전용)
   if (e.key === 'r' || e.key === 'R') {
-    if (bombCount > 0 && isGameStarted && !isGameOver) {
-      bombCount--;
-      // 폭탄 사용: 화면 내 일반 적, 적 미사일 전멸. 보스에게는 큰 데미지.
-      targets.length = 0; 
-      enemyMissiles.length = 0;
-      bosses.forEach(b => b.hp -= 30);
-      
-      bombFlashTimer = 30; // 30프레임 동안 화면 번쩍임 효과
-      explosionSound.currentTime = 0;
-      explosionSound.play().catch(e => {});
-    }
+    useBomb();
   }
   if (e.key.startsWith('Arrow')) {
     keys[e.key] = false;
@@ -271,6 +263,44 @@ window.addEventListener('touchend', (e) => {
 window.addEventListener('touchcancel', (e) => {
   isTouching = false;
 });
+
+// 폭탄 버튼 모바일 터치 처리
+if (mobileBombBtn) {
+  mobileBombBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // 버튼 터치 시 기체 이동 방지
+    useBomb();
+  });
+  mobileBombBtn.addEventListener('click', (e) => {
+    useBomb();
+  });
+}
+
+function updateBombUI() {
+  if (!mobileBombBtn) return;
+  if (bombCount > 0) {
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      mobileBombBtn.classList.remove('hidden');
+    }
+    if (bombCountDisplay) bombCountDisplay.innerText = bombCount;
+  } else {
+    mobileBombBtn.classList.add('hidden');
+  }
+}
+
+function useBomb() {
+  if (bombCount > 0 && isGameStarted && !isGameOver) {
+    bombCount--;
+    targets.length = 0; 
+    enemyMissiles.length = 0;
+    bosses.forEach(b => b.hp -= 30);
+    
+    bombFlashTimer = 30;
+    explosionSound.currentTime = 0;
+    explosionSound.play().catch(e => {});
+    
+    updateBombUI();
+  }
+}
 
 function isColliding(rect1, rect2) {
   return rect1.x < rect2.x + rect2.width &&
@@ -770,7 +800,7 @@ function render() {
   ctx.font = '20px Arial';
   ctx.textAlign = 'left';
   ctx.fillText('Score: ' + score, 10, 30);
-  ctx.fillText('Level: ' + currentLevel, 10, 55);
+  ctx.fillText('🚀 x ' + bombCount, 10, 55);
 
 }
 
