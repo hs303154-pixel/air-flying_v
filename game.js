@@ -800,7 +800,9 @@ function render() {
   ctx.font = '20px Arial';
   ctx.textAlign = 'left';
   ctx.fillText('Score: ' + score, 10, 30);
-  ctx.fillText('🚀 x ' + bombCount, 10, 55);
+  if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+    ctx.fillText('🚀 x ' + bombCount, 10, 55);
+  }
 
 }
 
