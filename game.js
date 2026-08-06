@@ -106,6 +106,7 @@ let bombCount = 0;
 let bombFlashTimer = 0; // 쉴드 파괴 연출용 타이머
 let invincibleTimer = 0; // 쉴드 파괴 후 무적 시간 타이머
 let gameFrameCount = 0; // 생존 시간(레벨) 측정 타이머
+let lastBossSpawnCount = 0;
 let bosses = []; // 거대 보스 오브젝트 배열
 let slowEndTime = 0;
 
@@ -295,8 +296,10 @@ function update(dtMultiplier = 1) {
 
   // 무적 타이머 감소
   if (invincibleTimer > 0) {
-    invincibleTimer--;
+    invincibleTimer = Math.max(0, invincibleTimer - dtMultiplier);
   }
+  if (shieldBreakTimer > 0) shieldBreakTimer = Math.max(0, shieldBreakTimer - dtMultiplier);
+  if (bombFlashTimer > 0) bombFlashTimer = Math.max(0, bombFlashTimer - dtMultiplier);
 
   // 레벨 계산 (별자리 워프 효과용)
   let currentLevel = 1 + Math.floor(gameFrameCount / 1200);
@@ -354,11 +357,11 @@ function update(dtMultiplier = 1) {
 
   // 쿨다운 감소
   if (fireCooldown > 0) {
-    fireCooldown--;
+    fireCooldown = Math.max(0, fireCooldown - dtMultiplier);
   }
 
   // 미사일 발사 (스페이스바 또는 화면 터치)
-  if ((keys[' '] || isTouching) && fireCooldown === 0) {
+  if ((keys[' '] || isTouching) && fireCooldown <= 0) {
     if (selectedFighterType === 'vip') {
       // VIP 기체: 미사일 2줄 (듀얼 샷)
       missiles.push({ x: player.x + player.width * 0.1, y: player.y, width: MISSILE_WIDTH, height: MISSILE_HEIGHT });
@@ -401,7 +404,7 @@ function update(dtMultiplier = 1) {
     }
 
     // 플레이어와 적 미사일 충돌 검사
-    if (invincibleTimer === 0 && isColliding(player, enemyMissiles[i])) {
+    if (invincibleTimer <= 0 && isColliding(player, enemyMissiles[i])) {
       if (shieldLevel > 0) {
         shieldLevel--; // 쉴드 1단계 깎임
         shieldBreakTimer = 15;
@@ -416,12 +419,13 @@ function update(dtMultiplier = 1) {
 
   // 시간 기반 레벨 계산 (20초 = 1200프레임마다 1레벨, 레벨 제한 해제!)
   if (bosses.length === 0) {
-    gameFrameCount++; // 보스가 없을 때만 타이머 가동 (보스전 중 레벨 동결)
+    gameFrameCount += dtMultiplier; // 보스가 없을 때만 타이머 가동 (보스전 중 레벨 동결)
   }
   let level = 1 + Math.floor(gameFrameCount / 1200);
 
   // 1분 30초(5400프레임, 약 5레벨 진입 시점)마다 거대 보스 주기적 스폰
-  if (bosses.length === 0 && gameFrameCount > 0 && gameFrameCount % 5400 === 0) {
+  if (bosses.length === 0 && gameFrameCount > 0 && (gameFrameCount - lastBossSpawnCount) >= 5400) {
+    lastBossSpawnCount = gameFrameCount;
     bosses.push({
       x: canvas.width / 2 - 100,
       y: -200,
@@ -454,7 +458,7 @@ function update(dtMultiplier = 1) {
         b.direction *= -1;
       }
       
-      b.fireTimer++;
+      b.fireTimer += dtMultiplier;
       // 보스 공격 속도도 레벨에 따라 빨라짐 (최소 20프레임)
       let bossFireRate = Math.max(20, 70 - level * 3);
       if (b.fireTimer > bossFireRate) {
@@ -488,7 +492,7 @@ function update(dtMultiplier = 1) {
     }
     
     // 보스와 플레이어 본체 충돌
-    if (bosses[i] && invincibleTimer === 0 && isColliding(player, bosses[i])) {
+    if (bosses[i] && invincibleTimer <= 0 && isColliding(player, bosses[i])) {
       if (shieldLevel > 0) {
         shieldLevel--; // 쉴드 1단계 강등
         shieldBreakTimer = 15;
@@ -507,7 +511,7 @@ function update(dtMultiplier = 1) {
   }
 
   // 타겟 생성 로직
-  targetSpawnTimer++;
+  targetSpawnTimer += dtMultiplier;
   if (targetSpawnTimer > spawnInterval) {
     targetSpawnTimer = 0;
     // 적기(airship)의 등장 확률을 대폭(50%로) 상향
@@ -568,7 +572,7 @@ function update(dtMultiplier = 1) {
     }
 
     // 플레이어 충돌 검사
-    if (invincibleTimer === 0 && isColliding(player, t)) {
+    if (invincibleTimer <= 0 && isColliding(player, t)) {
       if (t.type === 'airship' || t.type === 'meteorite') {
         if (shieldLevel > 0) {
           shieldLevel--; // 쉴드 파괴(강등)
@@ -646,7 +650,7 @@ function render() {
       ctx.drawImage(currentFighterImg, player.x, player.y, player.width, player.height);
     }
     
-    shieldBreakTimer--;
+    // shieldBreakTimer--; (moved to update)
     ctx.globalAlpha = 1.0; // 투명도 원상복구
   }
   // 정상 쉴드 활성화 상태 (푸른색/황금색 플라즈마 에너지 필드)
@@ -700,7 +704,7 @@ function render() {
   if (bombFlashTimer > 0) {
     ctx.fillStyle = `rgba(255, 255, 255, ${bombFlashTimer / 30})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    bombFlashTimer--;
+    // bombFlashTimer--; (moved to update)
   }
 
   // 보스 렌더링 (거대화 및 붉은 글로우)
@@ -1005,6 +1009,7 @@ function launchGame() {
   
   // 새 게임을 위한 보스 & 레벨 초기화
   gameFrameCount = 0;
+  lastBossSpawnCount = 0;
   bosses.length = 0;
   lastTime = 0;
 
