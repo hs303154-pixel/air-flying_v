@@ -289,7 +289,7 @@ let fireCooldown = 0;
 let FIRE_RATE = 20; // 연속 발사 간격 (기존 10에서 20으로 증가시켜 연사속도 50% 하향, 기체별 변동)
 
 // 위치 업데이트 및 화면 경계 제한
-function update() {
+function update(dtMultiplier = 1) {
   if (!isGameStarted) return;
   if (isGameOver) return; // 강제 정지 전 안전장치
 
@@ -306,7 +306,7 @@ function update() {
   for (let i = 0; i < stars.length; i++) {
     let s = stars[i];
     // 워프 모드일 때는 선처럼 보이게 만들기 위한 스피드 뻥튀기
-    s.y += s.speed * starSpeedMultiplier;
+    s.y += s.speed * starSpeedMultiplier * dtMultiplier;
     s.alpha += (Math.random() - 0.5) * 0.1; // 반짝임
     if (s.alpha < 0) s.alpha = 0;
     if (s.alpha > 1) s.alpha = 1;
@@ -320,7 +320,7 @@ function update() {
 
   if (isGameOver) return; // 강제 정지 전 안전장치
 
-  let currentSpeed = player.speed;
+  let currentSpeed = player.speed * dtMultiplier;
   if (Date.now() < slowEndTime) {
     currentSpeed *= 0.5;
   }
@@ -380,7 +380,7 @@ function update() {
   // 미사일 이동 및 메모리 정리 (화면 밖으로 나가면 삭제)
   for (let i = missiles.length - 1; i >= 0; i--) {
     let m = missiles[i];
-    m.y -= MISSILE_SPEED; // 위로 빠르게 이동
+    m.y -= MISSILE_SPEED * dtMultiplier; // 위로 빠르게 이동
 
     // (매우 중요) 화면 위쪽으로 완전히 벗어난 미사일은 데이터에서 삭제
     if (m.y + m.height < 0) {
@@ -391,8 +391,8 @@ function update() {
   // 적 미사일 이동, 충돌 및 메모리 정리
   for (let i = enemyMissiles.length - 1; i >= 0; i--) {
     let em = enemyMissiles[i];
-    em.x += (em.vx || 0); // 좌우 확산탄을 위한 vx 추가
-    em.y += (em.vy || ENEMY_MISSILE_SPEED); // 보스탄과 잡몹탄 속도 구분을 위한 vy 추가
+    em.x += (em.vx || 0) * dtMultiplier; // 좌우 확산탄을 위한 vx 추가
+    em.y += (em.vy || ENEMY_MISSILE_SPEED) * dtMultiplier; // 보스탄과 잡몹탄 속도 구분을 위한 vy 추가
 
     // 화면 밖으로 나가면 삭제
     if (em.y > canvas.height) {
@@ -446,10 +446,10 @@ function update() {
     let b = bosses[i];
     
     if (b.isEntering) {
-      b.y += 1.5;
+      b.y += 1.5 * dtMultiplier;
       if (b.y >= 30) b.isEntering = false;
     } else {
-      b.x += b.speed * b.direction;
+      b.x += b.speed * b.direction * dtMultiplier;
       if (b.x <= 0 || b.x + b.width >= canvas.width) {
         b.direction *= -1;
       }
@@ -544,7 +544,7 @@ function update() {
   // 타겟 이동 및 충돌 처리
   for (let i = targets.length - 1; i >= 0; i--) {
     let t = targets[i];
-    t.y += t.speed;
+    t.y += t.speed * dtMultiplier;
 
     // 화면 밖으로 나가면 삭제
     if (t.y > canvas.height) {
@@ -771,10 +771,19 @@ function render() {
 }
 
 let animationId;
+let lastTime = 0;
 // 메인 게임 루프
-function gameLoop() {
+function gameLoop(timestamp) {
   if (!isGameStarted || isGameOver) return; // 게임이 멈춰야 할 때는 다음 프레임을 예약하지 않음 (루프 완벽 종료)
-  update();
+  
+  if (!timestamp) timestamp = performance.now();
+  if (!lastTime) lastTime = timestamp;
+  let dt = (timestamp - lastTime) / 1000;
+  lastTime = timestamp;
+  if (dt > 0.1) dt = 1 / 60; // 탭 이동 등 지연 방지
+  let dtMultiplier = dt * 60;
+
+  update(dtMultiplier);
   render();
   animationId = requestAnimationFrame(gameLoop);
 }
@@ -997,6 +1006,7 @@ function launchGame() {
   // 새 게임을 위한 보스 & 레벨 초기화
   gameFrameCount = 0;
   bosses.length = 0;
+  lastTime = 0;
 
   if (!isGameStarted) {
     isGameStarted = true;
