@@ -146,9 +146,14 @@ function resizeCanvas() {
   const winW = window.innerWidth;
   const winH = window.innerHeight;
   
-  // 게임 내부의 절대적인 논리 해상도 (무조건 고정! 이 안에서 90x90 기체가 쾌적하게 놈)
-  canvas.width = 800;
-  canvas.height = 1200;
+  // 게임 내부의 절대적인 논리 해상도 (모바일은 700x1000, PC는 800x1200)
+  if (winH > winW) {
+    canvas.width = 700;
+    canvas.height = 1000;
+  } else {
+    canvas.width = 800;
+    canvas.height = 1200;
+  }
   
   // 화면 비율 계산 (잘리지 않게 꽉 차도록 object-fit: contain 방식 계산)
   const scaleX = winW / canvas.width;
@@ -1044,6 +1049,7 @@ function launchGame() {
   lastBossSpawnCount = 0;
   bosses.length = 0;
   lastTime = 0;
+  updateBombUI();
 
   if (!isGameStarted) {
     isGameStarted = true;
