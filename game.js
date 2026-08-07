@@ -27,6 +27,10 @@ const ctx = canvas.getContext('2d');
 const muteBtn = document.getElementById('muteBtn');
 const mobileBombBtn = document.getElementById('mobileBombBtn');
 const bombCountDisplay = document.getElementById('bombCountDisplay');
+const mobileGunBtn = document.getElementById('mobileGunBtn');
+const gunCountDisplay = document.getElementById('gunCountDisplay');
+const mobileShieldBtn = document.getElementById('mobileShieldBtn');
+const shieldCountDisplay = document.getElementById('shieldCountDisplay');
 
 // 비행기 이미지 로드
 const playerImg = new Image();
@@ -35,6 +39,7 @@ playerImg.src = 'public/basic.png';
 const premiumImg = new Image();
 premiumImg.src = 'public/premium_01.png';
 
+// 적기 및 운석 이미지
 const enemyImg = new Image();
 enemyImg.src = 'public/enemy.png';
 
@@ -47,6 +52,25 @@ octopusImg1.src = 'public/aline.png';
 const octopusImg2 = new Image();
 octopusImg2.src = 'public/aline_1.png';
 
+// 아이템 이미지 로드
+const itemImages = {
+  cupNoodle: new Image(),
+  chicken: new Image(),
+  hamburger: new Image(),
+  pizza: new Image()
+};
+itemImages.cupNoodle.src = 'public/cap_001.png';
+itemImages.chicken.src = 'public/dak_001.png';
+itemImages.hamburger.src = 'public/ham_001.png';
+itemImages.pizza.src = 'public/piz_001.png';
+
+// HUD용 폭탄, 기관총, 쉴드 아이콘 로드
+const bombIconImg = new Image();
+bombIconImg.src = 'public/BUM_001.png';
+const gunIconImg = new Image();
+gunIconImg.src = 'public/GON_001.png';
+const shieldIconImg = new Image();
+shieldIconImg.src = 'public/SHL_001.png';
 // 사운드 로드
 const bgm = new Audio('public/sound/bmg.mp3');
 bgm.loop = true;
@@ -82,6 +106,11 @@ let isBgmPlaying = false;
 let gameOverTriggered = false;
 
 function triggerGameOver() {
+  if (extraLives > 0) {
+    extraLives--;
+    invincibleTimer = 120; // 목숨 연장 시 2초간 무적 부여
+    return;
+  }
   if (!gameOverTriggered) {
     isGameOver = true;
     gameOverTriggered = true;
@@ -101,10 +130,15 @@ function triggerGameOver() {
 }
 
 let score = 0;
+let currentGold = 0; // 게임 중 획득한 골드
 let isGameOver = false;
 let shieldLevel = 0; // 0: None, 1: Blue, 2: Gold
 let shieldBreakTimer = 0;
 let bombCount = 0;
+let machineGunCount = 0; // 상점 기관총 아이템 개수
+let shieldCount = 0;     // 상점 쉴드 아이템 개수
+let machineGunTimer = 0; // 기관총 효과 남은 시간
+let extraLives = 0;      // 쉴드 구매 시 목숨 연장
 let bombFlashTimer = 0; // 쉴드 파괴 연출용 타이머
 let invincibleTimer = 0; // 쉴드 파괴 후 무적 시간 타이머
 let gameFrameCount = 0; // 생존 시간(레벨) 측정 타이머
@@ -213,9 +247,19 @@ window.addEventListener('keyup', (e) => {
     keys[' '] = false;
   }
   
-  // R 키: 폭탄 사용 (VIP 기체 전용)
-  if (e.key === 'r' || e.key === 'R') {
+  // B 키: 폭탄 사용
+  if (e.key === 'b' || e.key === 'B') {
     useBomb();
+  }
+  
+  // M 키: 기관총 사용
+  if (e.key === 'm' || e.key === 'M') {
+    useMachineGun();
+  }
+  
+  // S 키: 쉴드 사용
+  if (e.key === 's' || e.key === 'S') {
+    useShield();
   }
   if (e.key.startsWith('Arrow')) {
     keys[e.key] = false;
@@ -269,26 +313,51 @@ window.addEventListener('touchcancel', (e) => {
   isTouching = false;
 });
 
-// 폭탄 버튼 모바일 터치 처리
-if (mobileBombBtn) {
-  mobileBombBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault(); // 버튼 터치 시 기체 이동 방지
-    useBomb();
-  });
-  mobileBombBtn.addEventListener('click', (e) => {
-    useBomb();
-  });
-}
+// 모바일 터치 처리 (폭탄, 기관총, 쉴드)
+[
+  { btn: mobileBombBtn, action: useBomb },
+  { btn: mobileGunBtn, action: useMachineGun },
+  { btn: mobileShieldBtn, action: useShield }
+].forEach(item => {
+  if (item.btn) {
+    item.btn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // 버튼 터치 시 기체 이동 방지
+      item.action();
+    });
+    item.btn.addEventListener('click', (e) => {
+      item.action();
+    });
+  }
+});
 
-function updateBombUI() {
-  if (!mobileBombBtn) return;
-  if (bombCount > 0) {
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-      mobileBombBtn.classList.remove('hidden');
+function updateItemUI() {
+  const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  
+  if (mobileBombBtn) {
+    if (bombCount > 0) {
+      if (isTouchDevice) mobileBombBtn.classList.remove('hidden');
+      if (bombCountDisplay) bombCountDisplay.innerText = bombCount;
+    } else {
+      mobileBombBtn.classList.add('hidden');
     }
-    if (bombCountDisplay) bombCountDisplay.innerText = bombCount;
-  } else {
-    mobileBombBtn.classList.add('hidden');
+  }
+  
+  if (mobileGunBtn) {
+    if (machineGunCount > 0) {
+      if (isTouchDevice) mobileGunBtn.classList.remove('hidden');
+      if (gunCountDisplay) gunCountDisplay.innerText = machineGunCount;
+    } else {
+      mobileGunBtn.classList.add('hidden');
+    }
+  }
+  
+  if (mobileShieldBtn) {
+    if (shieldCount > 0) {
+      if (isTouchDevice) mobileShieldBtn.classList.remove('hidden');
+      if (shieldCountDisplay) shieldCountDisplay.innerText = shieldCount;
+    } else {
+      mobileShieldBtn.classList.add('hidden');
+    }
   }
 }
 
@@ -303,7 +372,25 @@ function useBomb() {
     explosionSound.currentTime = 0;
     explosionSound.play().catch(e => {});
     
-    updateBombUI();
+    updateItemUI();
+  }
+}
+
+function useMachineGun() {
+  if (machineGunCount > 0 && isGameStarted && !isGameOver) {
+    machineGunCount--;
+    machineGunTimer = 30 * 60; // 30초 (초당 60프레임 가정)
+    console.log("기관총 발동!");
+    updateItemUI();
+  }
+}
+
+function useShield() {
+  if (shieldCount > 0 && isGameStarted && !isGameOver) {
+    shieldCount--;
+    extraLives++;
+    console.log("쉴드 발동! 1회 방어 장전!");
+    updateItemUI();
   }
 }
 
@@ -390,6 +477,11 @@ function update(dtMultiplier = 1) {
     player.y = canvas.height - player.height;
   }
 
+  // 기관총 타이머 감소
+  if (machineGunTimer > 0) {
+    machineGunTimer -= dtMultiplier;
+  }
+
   // 쿨다운 감소
   if (fireCooldown > 0) {
     fireCooldown = Math.max(0, fireCooldown - dtMultiplier);
@@ -410,7 +502,7 @@ function update(dtMultiplier = 1) {
         height: MISSILE_HEIGHT
       });
     }
-    fireCooldown = FIRE_RATE; // 쿨다운 리셋
+    fireCooldown = (machineGunTimer > 0) ? FIRE_RATE / 2 : FIRE_RATE; // 기관총 발동 시 쿨다운 50%
     shotSound.currentTime = 0;
     shotSound.play().catch(e => {});
   }
@@ -557,7 +649,7 @@ function update(dtMultiplier = 1) {
     if (type === 'airship') {
       size = 60;
     } else if (type === 'meteorite') {
-      const meteoriteSizes = [30, 50, 70]; // 소, 중, 대 3가지 크기
+      const meteoriteSizes = [50, 70, 77]; // 중, 대, 특대(10% 증가) 3가지 크기
       size = meteoriteSizes[Math.floor(Math.random() * meteoriteSizes.length)];
     } else if (type === 'octopus') {
       size = 80; // 기존 40의 200%
@@ -607,30 +699,39 @@ function update(dtMultiplier = 1) {
     }
 
     // 플레이어 충돌 검사
-    if (invincibleTimer <= 0 && isColliding(player, t)) {
-      if (t.type === 'airship' || t.type === 'meteorite') {
-        if (shieldLevel > 0) {
-          shieldLevel--; // 쉴드 파괴(강등)
-          shieldBreakTimer = 15; // 파괴 이펙트 15프레임 지속
-          invincibleTimer = 60; // 쉴드 파괴 후 1초(60프레임) 무적
-          targets.splice(i, 1); // 부딪힌 적 파괴
-          continue;
-        } else {
-          triggerGameOver();
-        }
-      } else if (t.type === 'octopus') {
-        slowEndTime = Date.now() + 3000;
+    if (isColliding(player, t)) {
+      if (t.type === 'item') {
+        currentGold += t.value;
         targets.splice(i, 1);
         continue;
+      }
+      if (invincibleTimer <= 0) {
+        if (t.type === 'airship' || t.type === 'meteorite') {
+          if (shieldLevel > 0) {
+            shieldLevel--; // 쉴드 파괴(강등)
+            shieldBreakTimer = 15; // 파괴 이펙트 15프레임 지속
+            invincibleTimer = 60; // 쉴드 파괴 후 1초(60프레임) 무적
+            targets.splice(i, 1); // 부딪힌 적 파괴
+            continue;
+          } else {
+            triggerGameOver();
+          }
+        } else if (t.type === 'octopus') {
+          slowEndTime = Date.now() + 3000;
+          targets.splice(i, 1);
+          continue;
+        }
       }
     }
 
     // 미사일 충돌 검사
     let hitMissileIndex = -1;
-    for (let j = 0; j < missiles.length; j++) {
-      if (isColliding(missiles[j], t)) {
-        hitMissileIndex = j;
-        break;
+    if (t.type !== 'item') {
+      for (let j = 0; j < missiles.length; j++) {
+        if (isColliding(missiles[j], t)) {
+          hitMissileIndex = j;
+          break;
+        }
       }
     }
 
@@ -641,6 +742,10 @@ function update(dtMultiplier = 1) {
         score += 10;
         explosionSound.currentTime = 0;
         explosionSound.play().catch(e => {});
+        // 25% 확률로 아이템 드랍
+        if (Math.random() < 0.25) {
+          spawnItem(t.x, t.y);
+        }
       } else if (t.type === 'octopus') {
         targets.splice(i, 1);
         score += 5; // 문어 맞추면 5점 획득
@@ -650,6 +755,26 @@ function update(dtMultiplier = 1) {
       // 운석은 미사일만 파괴되고 타겟은 삭제 안됨
     }
   }
+}
+
+function spawnItem(x, y) {
+  // 50:50 확률로 1골드 또는 2골드 획득
+  let itemValue = Math.random() < 0.5 ? 1 : 2; 
+  
+  // 이미지 키워드 배열
+  const itemKeys = ['cupNoodle', 'chicken', 'hamburger', 'pizza'];
+  let selectedKey = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+  
+  targets.push({
+    type: 'item',
+    x: x,
+    y: y,
+    width: 60, // 적기 크기와 동일하게 상향 (기존 30 -> 60)
+    height: 60,
+    speed: 4.5,
+    value: itemValue,
+    itemKey: selectedKey // 그릴 때 사용할 이미지 키 저장
+  });
 }
 
 // 화면 렌더링
@@ -769,13 +894,24 @@ function render() {
   for (let i = 0; i < targets.length; i++) {
     let t = targets[i];
     if (t.type === 'airship') {
+      ctx.save();
+      // 적기 주위 빨간색 아우라 (테두리선 제거)
+      ctx.shadowColor = 'red';
+      ctx.shadowBlur = 20;
+      
       if (enemyImg.complete && enemyImg.naturalHeight !== 0) {
         ctx.drawImage(enemyImg, t.x, t.y, t.width, t.height);
       } else {
         ctx.fillStyle = 'red';
         ctx.fillRect(t.x, t.y, t.width, t.height);
       }
+      ctx.restore();
     } else if (t.type === 'meteorite') {
+      ctx.save();
+      // 운석 주위 빨간색 불꽃 아우라
+      ctx.shadowColor = 'red';
+      ctx.shadowBlur = 20;
+      
       if (meteorImg.complete && meteorImg.naturalHeight !== 0) {
         ctx.drawImage(meteorImg, t.x, t.y, t.width, t.height);
       } else {
@@ -784,6 +920,22 @@ function render() {
         ctx.arc(t.x + t.width / 2, t.y + t.height / 2, t.width / 2, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.restore();
+    } else if (t.type === 'item') {
+      ctx.save();
+      
+      const img = itemImages[t.itemKey];
+      if (img && img.complete && img.naturalHeight !== 0) {
+        // 이미지가 정상 로드되었을 경우 그림
+        ctx.drawImage(img, t.x, t.y, t.width, t.height);
+      } else {
+        // 로드 실패 시 예비용 원형 배경 (하얀색)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(t.x + t.width/2, t.y + t.height/2, t.width/2 + 5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
     } else if (t.type === 'octopus') {
       // 500ms마다 이미지 번갈아 보여주기 (애니메이션 효과)
       const isImg1 = Math.floor(Date.now() / 500) % 2 === 0;
@@ -802,12 +954,39 @@ function render() {
   let currentLevel = 1 + Math.floor(gameFrameCount / 1200);
   currentLevel = Math.min(10, currentLevel);
   ctx.fillStyle = 'white';
-  ctx.font = '20px Arial';
+  ctx.font = 'bold 28px Arial'; // 40px의 70% 크기
   ctx.textAlign = 'left';
-  ctx.fillText('Score: ' + score, 10, 30);
-  if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
-    ctx.fillText('🚀 x ' + bombCount, 10, 55);
-  }
+  
+  // 1. 점수 (Score)
+  ctx.fillText('Score: ' + score, 10, 40);
+  
+  // 2. 골드 (Gold) - 깨지는 이모지 아이콘 제거
+  ctx.fillStyle = '#FFD700'; // 황금색
+  ctx.fillText('Gold: ' + currentGold, 10, 75);
+  
+  // 3. 폭탄 (Bomb) - 폭탄 아이콘 렌더링
+  ctx.shadowColor = 'white';
+  ctx.shadowBlur = 10; // 하얀색 테두리(발광) 효과
+  ctx.drawImage(bombIconImg, 10, 85, 30, 30);
+  
+  // 그림자 초기화 및 남은 폭탄 개수 텍스트
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'white';
+  ctx.fillText(' X ' + bombCount, 40, 110);
+
+  // 4. 기관총 (Machine Gun) - HUD 렌더링
+  ctx.shadowColor = 'white';
+  ctx.shadowBlur = 10;
+  ctx.drawImage(gunIconImg, 10, 120, 30, 30);
+  ctx.shadowBlur = 0;
+  ctx.fillText(' X ' + machineGunCount, 40, 145);
+
+  // 5. 쉴드 (Shield) - HUD 렌더링
+  ctx.shadowColor = 'white';
+  ctx.shadowBlur = 10;
+  ctx.drawImage(shieldIconImg, 10, 155, 30, 30);
+  ctx.shadowBlur = 0;
+  ctx.fillText(' X ' + shieldCount, 40, 180);
 
 }
 
@@ -1049,7 +1228,7 @@ function launchGame() {
   lastBossSpawnCount = 0;
   bosses.length = 0;
   lastTime = 0;
-  updateBombUI();
+  updateItemUI();
 
   if (!isGameStarted) {
     isGameStarted = true;
@@ -1196,6 +1375,49 @@ if (modalStartBtn) {
     // START 이거나, 테스트를 위해 잠겨있어도 무조건 출격하도록 연결
     launchGame();
   });
+}
+
+// 상점 모달 열기/닫기 이벤트 추가
+const openShopBtn = document.getElementById('openShopBtn');
+const closeShopBtn = document.getElementById('closeShopBtn');
+const shopScreen = document.getElementById('shopScreen');
+
+if (openShopBtn && closeShopBtn && shopScreen) {
+  openShopBtn.addEventListener('click', () => {
+    shopScreen.classList.remove('hidden');
+  });
+  
+  closeShopBtn.addEventListener('click', () => {
+    shopScreen.classList.add('hidden');
+  });
+
+  // 상점 아이템 구매 로직 연결
+  const buyGunBtn = document.getElementById('buyGunBtn');
+  const buyBombBtn = document.getElementById('buyBombBtn');
+  const buyShieldBtn = document.getElementById('buyShieldBtn');
+
+  const handlePurchase = (cost, onSuccess) => {
+    if (currentGold >= cost) {
+      currentGold -= cost;
+      onSuccess();
+      alert('구매 완료!');
+    } else {
+      alert('골드가 부족합니다!');
+    }
+  };
+
+  if (buyGunBtn) buyGunBtn.addEventListener('click', () => handlePurchase(500, () => {
+    machineGunCount++;
+    updateItemUI();
+  }));
+  if (buyBombBtn) buyBombBtn.addEventListener('click', () => handlePurchase(500, () => {
+    bombCount++;
+    updateItemUI();
+  }));
+  if (buyShieldBtn) buyShieldBtn.addEventListener('click', () => handlePurchase(500, () => {
+    shieldCount++;
+    updateItemUI();
+  }));
 }
 
 // --- OBT (오픈 베타 테스트) 임시 프리패스 ---

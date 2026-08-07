@@ -6,12 +6,11 @@
   <title>비행기 슈팅 게임 - 1단계</title>
   <link rel="stylesheet" href="style.css?v=11">
   <style>
-    .mobile-bomb-btn {
+    .mobile-item-btn {
       position: fixed !important;
-      bottom: 30px !important;
       left: 20px !important;
-      width: 80px;
-      height: 80px;
+      width: 70px;
+      height: 70px;
       background: rgba(255, 50, 50, 0.7);
       color: white;
       border: 2px solid rgba(255, 255, 255, 0.5);
@@ -24,12 +23,127 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
       pointer-events: auto;
     }
-    .mobile-bomb-btn:active {
+    .mobile-item-btn:active {
       background: rgba(255, 0, 0, 0.9);
       transform: scale(0.95);
     }
-    .mobile-bomb-btn.hidden {
+    .mobile-item-btn.hidden {
       display: none !important;
+    }
+    #mobileBombBtn { bottom: 30px !important; }
+    #mobileGunBtn { bottom: 120px !important; }
+    #mobileShieldBtn { bottom: 210px !important; }
+    /* 사용설명서 수평 정렬 오버라이드 */
+    .stitch-fighter-info {
+      justify-content: flex-start !important;
+      gap: 50px !important; /* 텍스트를 원래 위치(밑)로 내림 */
+    }
+    .top-buttons-wrapper {
+      display: flex;
+      gap: 15px;
+    }
+    /* 버튼들 크기 고정 (글자수 달라도 무조건 똑같은 크기로 강제 고정) */
+    .stitch-manual-btn, .stitch-shop-btn {
+      padding: 12px 0 !important; 
+      width: 110px !important;
+      text-align: center !important;
+      font-size: 13px !important;
+    }
+    /* 상점 버튼 스타일 */
+    .stitch-shop-btn {
+      background: rgba(255, 200, 0, 0.1);
+      border: 1px solid #ffcc00;
+      color: #ffcc00;
+      font-family: 'Inter', sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+    .stitch-shop-btn:hover {
+      background: rgba(255, 200, 0, 0.3);
+      box-shadow: 0 0 10px #ffcc00;
+    }
+    
+    /* 상점 모달 스타일 */
+    .stitch-shop-panel {
+      background: rgba(10, 20, 30, 0.95);
+      border: 2px solid #ffcc00;
+      box-shadow: 0 0 20px rgba(255, 200, 0, 0.5);
+      width: 320px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    }
+    .stitch-shop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 200, 0, 0.5);
+      padding-bottom: 10px;
+    }
+    .stitch-shop-header .stitch-title {
+      color: #ffcc00;
+      text-shadow: 0 0 8px #ffcc00;
+    }
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: #ffcc00;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .stitch-shop-body {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .shop-item-row {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 200, 0, 0.3);
+      padding: 10px;
+      gap: 10px;
+    }
+    .shop-item-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    }
+    .shop-item-desc {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .shop-item-name {
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .shop-item-detail {
+      color: #aaa;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .shop-buy-btn {
+      background: rgba(255, 200, 0, 0.2);
+      border: 1px solid #ffcc00;
+      color: #ffcc00;
+      padding: 8px 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .shop-buy-btn:hover {
+      background: rgba(255, 200, 0, 0.5);
+      box-shadow: 0 0 10px #ffcc00;
     }
   </style>
 <body>
@@ -40,9 +154,19 @@
     <canvas id="gameCanvas" width="360" height="640"></canvas>
     
     <!-- 모바일 전용 폭탄 버튼 -->
-    <button id="mobileBombBtn" class="mobile-bomb-btn hidden">
+    <button id="mobileBombBtn" class="mobile-item-btn hidden">
       <span style="font-size: 24px;">🚀</span>
       <span id="bombCountDisplay">0</span>
+    </button>
+    <!-- 모바일 전용 기관총 버튼 -->
+    <button id="mobileGunBtn" class="mobile-item-btn hidden">
+      <span style="font-size: 24px;">🔫</span>
+      <span id="gunCountDisplay">0</span>
+    </button>
+    <!-- 모바일 전용 쉴드 버튼 -->
+    <button id="mobileShieldBtn" class="mobile-item-btn hidden">
+      <span style="font-size: 24px;">🛡️</span>
+      <span id="shieldCountDisplay">0</span>
     </button>
     
     <!-- 로그인 오버레이 UI -->
@@ -88,7 +212,10 @@
           </div>
           <!-- 우측 기체 이름 및 정보 -->
           <div class="stitch-fighter-info">
-            <button class="stitch-manual-btn">사용설명서</button>
+            <div class="top-buttons-wrapper">
+              <button class="stitch-manual-btn">사용설명서</button>
+              <button class="stitch-shop-btn" id="openShopBtn">상점</button>
+            </div>
             <div class="fighter-name">BASIC FIGHTER</div>
           </div>
         </div>
@@ -123,6 +250,45 @@
       </div>
     </div>
 
+    <!-- 상점 팝업 모달창 (숨김 상태) -->
+    <div id="shopScreen" class="overlay-screen hidden">
+      <div class="stitch-shop-panel">
+        <div class="stitch-shop-header">
+          <span class="stitch-title">SHOP</span>
+          <button id="closeShopBtn" class="close-btn">X</button>
+        </div>
+        <div class="stitch-shop-body">
+          <!-- 1번째 줄: 기관총 -->
+          <div class="shop-item-row">
+            <img class="shop-item-img" src="public/GON_001.png" alt="Machine Gun">
+            <div class="shop-item-desc">
+              <div class="shop-item-name">기관총 (Machine Gun)</div>
+              <div class="shop-item-detail">30초간 미친 연사 속도 폭발! (단축키: M)</div>
+            </div>
+            <button id="buyGunBtn" class="shop-buy-btn">500 G</button>
+          </div>
+          <!-- 2번째 줄: 폭탄 -->
+          <div class="shop-item-row">
+            <img class="shop-item-img" src="public/BUM_001.png" alt="Bomb">
+            <div class="shop-item-desc">
+              <div class="shop-item-name">폭탄 (Bomb)</div>
+              <div class="shop-item-detail">화면 내 모든 적과 미사일 삭제! (단축키: B)</div>
+            </div>
+            <button id="buyBombBtn" class="shop-buy-btn">500 G</button>
+          </div>
+          <!-- 3번째 줄: 쉴드 -->
+          <div class="shop-item-row">
+            <img class="shop-item-img" src="public/SHL_001.png" alt="Shield">
+            <div class="shop-item-desc">
+              <div class="shop-item-name">쉴드 (Shield)</div>
+              <div class="shop-item-detail">피격 시 1회 완벽 방어! (단축키: S)</div>
+            </div>
+            <button id="buyShieldBtn" class="shop-buy-btn">500 G</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 출격 확인 모달창 (숨김 상태) -->
     <div id="startModal" class="overlay-screen hidden">
       <div class="stitch-modal-panel">
@@ -145,6 +311,6 @@
       <button id="restartBtn">Select Fighter</button>
     </div>
   </div>
-  <script type="module" src="game.js?v=4"></script>
+  <script type="module" src="game.js?v=5"></script>
 </body>
 </html>
