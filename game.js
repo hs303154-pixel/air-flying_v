@@ -592,10 +592,19 @@ function update(dtMultiplier = 1) {
         b.fireTimer = 0;
         let centerX = b.x + b.width / 2 - MISSILE_WIDTH / 2;
         let bottomY = b.y + b.height;
-        // 3갈래 부채꼴 발사
-        enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: 0, vy: ENEMY_MISSILE_SPEED * 0.9 });
-        enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: -2, vy: ENEMY_MISSILE_SPEED * 0.8 });
-        enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: 2, vy: ENEMY_MISSILE_SPEED * 0.8 });
+        
+        // 모바일 환경(너비 768 이하)인지 체크
+        let isMobile = window.innerWidth <= 768 || navigator.userAgent.match(/Android|iPhone|iPad|iPod/i);
+        
+        if (isMobile) {
+          // 모바일: 1줄 발사 (속도 살짝 증가)
+          enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: 0, vy: ENEMY_MISSILE_SPEED * 1.1 });
+        } else {
+          // PC: 3갈래 부채꼴 발사
+          enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: 0, vy: ENEMY_MISSILE_SPEED * 0.9 });
+          enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: -2, vy: ENEMY_MISSILE_SPEED * 0.8 });
+          enemyMissiles.push({ x: centerX, y: bottomY, width: MISSILE_WIDTH, height: MISSILE_HEIGHT, vx: 2, vy: ENEMY_MISSILE_SPEED * 0.8 });
+        }
         
         enemyShotSound.currentTime = 0;
         enemyShotSound.play().catch(e => {});
